@@ -3,7 +3,6 @@ package main
 import (
 	"./check"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -57,8 +56,6 @@ func req(w http.ResponseWriter, r *http.Request) {
 	default:
 		wrongMethod(w)
 	}
-
-	fmt.Println(data.storage)
 }
 
 func (d *Data) get(w http.ResponseWriter) {
@@ -78,12 +75,7 @@ func (d *Data) get(w http.ResponseWriter) {
 		}
 	}
 
-	json, err := json.Marshal(result)
-	if err != nil {
-		log.Println(err)
-	}
-
-	w.Write(json)
+	render(result, w)
 }
 
 func (d *Data) set(w http.ResponseWriter) {
@@ -119,12 +111,7 @@ func (d *Data) set(w http.ResponseWriter) {
 		}
 	}
 
-	json, err := json.Marshal(result)
-	if err != nil {
-		log.Println(err)
-	}
-
-	w.Write(json)
+	render(result, w)
 }
 
 func (d *Data) exists(w http.ResponseWriter) {
@@ -144,12 +131,7 @@ func (d *Data) exists(w http.ResponseWriter) {
 		}
 	}
 
-	json, err := json.Marshal(result)
-	if err != nil {
-		log.Println(err)
-	}
-
-	w.Write(json)
+	render(result, w)
 }
 
 func (d *Data) remove(w http.ResponseWriter) {
@@ -171,12 +153,7 @@ func (d *Data) remove(w http.ResponseWriter) {
 		}
 	}
 
-	json, err := json.Marshal(result)
-	if err != nil {
-		log.Println(err)
-	}
-
-	w.Write(json)
+	render(result, w)
 }
 
 func wrongMethod(w http.ResponseWriter) {
@@ -186,12 +163,7 @@ func wrongMethod(w http.ResponseWriter) {
 		Error: "Method not allowed. Allowed methods is: " + strings.Join(methods, ","),
 	}
 
-	json, err := json.Marshal(result)
-	if err != nil {
-		log.Println(err)
-	}
-
-	w.Write(json)
+	render(result, w)
 }
 
 func render(result Data, w http.ResponseWriter) {
