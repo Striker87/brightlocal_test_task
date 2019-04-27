@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./check"
+	"brightlocal/check"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -11,8 +11,8 @@ import (
 )
 
 type Data struct {
-	Method string `json:"method"`
-	Key    string `json:"key"`
+	Method string `json:"method,omitempty"`
+	Key    string `json:"key,omitempty"`
 	Value  string `json:"value,omitempty"`
 	Error  string `json:"error,omitempty"`
 	Result string `json:"result,omitempty"`
@@ -22,9 +22,11 @@ type Data struct {
 
 var data Data
 
-func main() {
+func init() {
 	data = Data{storage: make(map[string]string)}
+}
 
+func main() {
 	http.HandleFunc("/req", req)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -40,7 +42,7 @@ func req(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(body, &data)
 	if err != nil {
 		log.Println(err)
-		w.Write([]byte(`{"error":"wrong json"}`))
+		w.Write([]byte(`{"error":"invalid json"}`))
 		return
 	}
 
@@ -160,12 +162,13 @@ func wrongMethod(w http.ResponseWriter) {
 	methods := []string{"GET", "SET", "DELETE", "EXISTS"}
 
 	result := Data{
-		Error: "Method not allowed. Allowed methods is: " + strings.Join(methods, ","),
+		Error: "method not allowed. allowed methods is: " + strings.Join(methods, ","),
 	}
 
 	render(result, w)
 }
 
+// render JSON response
 func render(result Data, w http.ResponseWriter) {
 	j, err := json.Marshal(result)
 	if err != nil {
