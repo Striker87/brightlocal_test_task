@@ -61,98 +61,70 @@ func req(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *Data) get(w http.ResponseWriter) {
-	result := Data{}
+	result := Data{
+		Method: "GET",
+		Key:    d.Key,
+	}
 
 	if check.KeyExists(d.Key, d.storage) {
-		result = Data{
-			Method: "GET",
-			Key:    d.Key,
-			Value:  d.storage[d.Key],
-		}
+		result = Data{Value: d.storage[d.Key]}
 	} else {
-		result = Data{
-			Method: "GET",
-			Key:    d.Key,
-			Error:  "not found",
-		}
+		result = Data{Error: "not found"}
 	}
 
 	render(result, w)
 }
 
 func (d *Data) set(w http.ResponseWriter) {
-	result := Data{}
+	result := Data{
+		Method: "SET",
+		Value:  d.Value,
+	}
 
 	if check.Value(d.Value) {
-		result = Data{
-			Method: "SET",
-			Value:  d.Value,
-			Error:  "value too long",
-		}
+		result = Data{Error: "value too long"}
 	} else if check.Key(d.Key) {
-		result = Data{
-			Method: "SET",
-			Key:    d.Key,
-			Error:  "key too long or empty",
-		}
+		result = Data{Error: "key too long or empty"}
 	} else if check.StorageSize(d.storage) {
-		result = Data{
-			Method: "SET",
-			Key:    d.Key,
-			Error:  "storage is full. maximum size 1024 keys",
-		}
+		result = Data{Error: "storage is full. maximum size 1024 keys"}
 	} else {
 		d.Lock()
 		d.storage[d.Key] = d.Value
 		d.Unlock()
 
-		result = Data{
-			Method: "SET",
-			Key:    d.Key,
-			Value:  d.Value,
-		}
+		result = Data{Value: d.Value}
 	}
 
 	render(result, w)
 }
 
 func (d *Data) exists(w http.ResponseWriter) {
-	result := Data{}
+	result := Data{
+		Method: "EXISTS",
+		Key:    d.Key,
+	}
 
 	if check.KeyExists(d.Key, d.storage) {
-		result = Data{
-			Method: "EXISTS",
-			Key:    d.Key,
-			Result: "exists",
-		}
+		result = Data{Result: "exists"}
 	} else {
-		result = Data{
-			Method: "EXISTS",
-			Key:    d.Key,
-			Result: "not exists",
-		}
+		result = Data{Result: "not exists"}
 	}
 
 	render(result, w)
 }
 
 func (d *Data) remove(w http.ResponseWriter) {
-	result := Data{}
+	result := Data{
+		Method: "DELETE",
+		Key:    d.Key,
+	}
 
 	if check.KeyExists(d.Key, d.storage) {
 		delete(d.storage, d.Key)
 
-		result = Data{
-			Method: "DELETE",
-			Key:    d.Key,
-			Result: "success",
-		}
+		result = Data{Result: "success"}
 	} else {
-		result = Data{
-			Method: "DELETE",
-			Key:    d.Key,
-			Error:  "not found",
-		}
+		result = Data{Error: "not found"}
 	}
 
 	render(result, w)
