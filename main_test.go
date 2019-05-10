@@ -35,7 +35,7 @@ func TestSetLongKey(t *testing.T) {
 
 	handler.ServeHTTP(resp, request)
 
-	expected := `{"method":"SET","key":"test_key_aaaaaaaaaaaaaaaaaaa","error":"key too long or empty"}`
+	expected := `{"method":"SET","key":"test_key_aaaaaaaaaaaaaaaaaaa","value":"test_val","error":"key too long or empty"}`
 	if resp.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v", resp.Body.String(), expected)
 	}

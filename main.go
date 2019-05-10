@@ -67,9 +67,9 @@ func (d *Data) get(w http.ResponseWriter) {
 	}
 
 	if check.KeyExists(d.Key, d.storage) {
-		result = Data{Value: d.storage[d.Key]}
+		result.Value = d.storage[d.Key]
 	} else {
-		result = Data{Error: "not found"}
+		result.Error = "not found"
 	}
 
 	render(result, w)
@@ -79,20 +79,19 @@ func (d *Data) set(w http.ResponseWriter) {
 	result := Data{
 		Method: "SET",
 		Value:  d.Value,
+		Key:    d.Key,
 	}
 
 	if check.Value(d.Value) {
-		result = Data{Error: "value too long"}
+		result.Error = "value too long"
 	} else if check.Key(d.Key) {
-		result = Data{Error: "key too long or empty"}
+		result.Error = "key too long or empty"
 	} else if check.StorageSize(d.storage) {
-		result = Data{Error: "storage is full. maximum size 1024 keys"}
+		result.Error = "storage is full. maximum size 1024 keys"
 	} else {
 		d.Lock()
 		d.storage[d.Key] = d.Value
 		d.Unlock()
-
-		result = Data{Value: d.Value}
 	}
 
 	render(result, w)
@@ -105,9 +104,9 @@ func (d *Data) exists(w http.ResponseWriter) {
 	}
 
 	if check.KeyExists(d.Key, d.storage) {
-		result = Data{Result: "exists"}
+		result.Result = "exists"
 	} else {
-		result = Data{Result: "not exists"}
+		result.Result = "not exists"
 	}
 
 	render(result, w)
@@ -122,9 +121,9 @@ func (d *Data) remove(w http.ResponseWriter) {
 	if check.KeyExists(d.Key, d.storage) {
 		delete(d.storage, d.Key)
 
-		result = Data{Result: "success"}
+		result.Result = "success"
 	} else {
-		result = Data{Error: "not found"}
+		result.Error = "not found"
 	}
 
 	render(result, w)
