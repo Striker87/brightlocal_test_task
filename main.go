@@ -11,12 +11,11 @@ import (
 )
 
 type Data struct {
-	Method string `json:"method,omitempty"`
-	Key    string `json:"key,omitempty"`
-	Value  string `json:"value,omitempty"`
-	Error  string `json:"error,omitempty"`
-	Result string `json:"result,omitempty"`
-	sync.RWMutex
+	Method  string `json:"method,omitempty"`
+	Key     string `json:"key,omitempty"`
+	Value   string `json:"value,omitempty"`
+	Error   string `json:"error,omitempty"`
+	Result  string `json:"result,omitempty"`
 	storage map[string]string
 }
 
@@ -76,6 +75,8 @@ func (d *Data) get(w http.ResponseWriter) {
 }
 
 func (d *Data) set(w http.ResponseWriter) {
+	var mu sync.Mutex
+
 	result := Data{
 		Method: "SET",
 		Value:  d.Value,
@@ -89,9 +90,9 @@ func (d *Data) set(w http.ResponseWriter) {
 	} else if check.StorageSize(d.storage) {
 		result.Error = "storage is full. maximum size 1024 keys"
 	} else {
-		d.Lock()
+		mu.Lock()
 		d.storage[d.Key] = d.Value
-		d.Unlock()
+		mu.Unlock()
 	}
 
 	render(result, w)
